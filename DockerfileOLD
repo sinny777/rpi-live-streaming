@@ -1,4 +1,4 @@
-FROM hukam/ffmpeg
+FROM resin/rpi-raspbian:jessie
 MAINTAINER Gurvinder Singh <contact@hukamtechnologies.com>
 
 ENV BUILD_VERSION="V1"
@@ -16,8 +16,12 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 COPY entrypoint.sh /usr/src/app
+COPY build.sh /usr/src/app
 
 RUN chmod +x /usr/src/app/entrypoint.sh
+RUN chmod +x /usr/src/app/build.sh
+
+RUN /usr/src/app/build.sh
 
 ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
 CMD []

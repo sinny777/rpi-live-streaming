@@ -1,7 +1,8 @@
 #!/bin/bash
 
 function install_build_tools {
-  sudo apt-get install git
+
+	sudo apt-get install git
 	sudo apt-get install libasound2-dev
 	sudo apt-get install build-essential
 	sudo apt-get install make
@@ -9,13 +10,21 @@ function install_build_tools {
 	sudo apt-get install libtool
 	sudo apt-get install nginx
 	sudo apt-get install -qy libomxil-bellagio-dev
-  sudo sh -c 'echo "deb http://www.deb-multimedia.org jessie main non-free" >> /etc/apt/sources.list.d/deb-multimedia.list'
-  sudo sh -c 'echo "deb-src http://www.deb-multimedia.org jessie main non-free" >> /etc/apt/sources.list.d/deb-multimedia.list'
-  sudo apt-get update
-  sudo apt-get install deb-multimedia-keyring
-  sudo apt-get update
-  sudo apt-get remove ffmpeg
-  sudo apt-get install build-essential libmp3lame-dev libvorbis-dev libtheora-dev libspeex-dev yasm pkg-config libfaac-dev libopenjpeg-dev libx264-dev
+}
+
+function build_yasm {
+
+	echo "Building yasm..."
+
+    # an assembler used by x264 and ffmpeg
+    cd /usr/src/app
+
+    wget http://www.tortall.net/projects/yasm/releases/yasm-1.2.0.tar.gz
+    tar xzvf yasm-1.2.0.tar.gz
+    cd yasm-1.2.0
+    ./configure
+    make
+    make install
 }
 
 function build_h264 {
@@ -65,12 +74,11 @@ function build_ffmpeg {
 	echo "Building ffmpeg"
 
     cd /usr/src/app/
-    sudo git clone https://github.com/FFmpeg/FFmpeg.git
-    cd FFmpeg/
-    sudo ./configure --arch=armel --target-os=linux --enable-gpl --enable-omx --enable-omx-rpi --enable-nonfree
-    # sudo ./configure --prefix=/usr --arch=armel --target-os=linux --enable-gpl --enable-omx --enable-omx-rpi --enable-nonfree --enable-libx264 --enable-version3 --disable-mmx
-    sudo make -j4
-    sudo make install
+    git clone https://github.com/FFmpeg/FFmpeg.git
+    cd FFmpeg
+    ./configure --enable-shared --enable-gpl --prefix=/usr --enable-nonfree --enable-libmp3lame --enable-libx264 --enable-version3 --disable-mmx
+    make
+    make install
 }
 
 function configure_ldconfig {
@@ -88,10 +96,10 @@ function build_psips {
 }
 
 install_build_tools
-# build_yasm
+build_yasm
 build_h264
-# build_lame
-# build_faac
-# build_ffmpeg
-# configure_ldconfig
+build_lame
+build_faac
+build_ffmpeg
+configure_ldconfig
 # build_psips
